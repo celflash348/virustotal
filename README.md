@@ -2,6 +2,8 @@
 script para hacer busqueda masiva en virustotal 
 
 USO
+
+
 Consultar un dominio específico
 virustotal.exe -api TU_CLAVE_API -type domain -value ejemplo.com
 
