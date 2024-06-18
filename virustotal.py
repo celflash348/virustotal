@@ -30,7 +30,7 @@ def process_data(api_key, data_type, data_value):
         elif data_type == 'hash':
             result.update({
                 'sha256': attributes.get('sha256', 'No Disponible'),
-                'file_name': attributes.get('names', ['Desconocido'])[0]
+                'file_name': attributes.get('names', ['Desconocido'])[0] if attributes.get('names') else 'Desconocido'
             })
         elif data_type == 'ip':
             netname = re.search(r"netname: (\S+)", attributes.get('whois', ''))
