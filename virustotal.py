@@ -14,11 +14,22 @@ def query_virustotal(api_key, query_type, query_value):
     
     headers = {"x-apikey": api_key}
     response = requests.get(url, headers=headers)
-    return response.json() if response.status_code == 200 else None
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Error: Received status code {response.status_code} for {query_type}: {query_value}")
+        return None
 
-def process_data(api_key, data_type, data_value):
+def process_data(api_key, data_type, data_value, debug):
     response = query_virustotal(api_key, data_type, data_value)
-    if response and 'data' in response:
+    if response:
+        if debug:
+            print(f"Response for {data_type} {data_value}: {response}")  # Debug print to see the full response
+    else:
+        print(f"No response for {data_type}: {data_value}")
+        return None
+
+    if 'data' in response:
         attributes = response['data']['attributes']
         result = {'type': data_type, 'identifier': data_value}
 
@@ -55,12 +66,13 @@ def main():
     parser.add_argument('-type', choices=['domain', 'hash', 'ip'], required=True, help='Type of data to query')
     parser.add_argument('-value', type=str, help='Single value to query')
     parser.add_argument('-p', type=str, help='Path to file containing values to query')
+    parser.add_argument('--debug', action='store_true', help='Enable debug mode to print full API responses')
     args = parser.parse_args()
 
     output_file = f"{args.type}_report.csv"
     rows = []
     if args.value:
-        data = process_data(args.api, args.type, args.value)
+        data = process_data(args.api, args.type, args.value, args.debug)
         if data:
             rows.append(data)
     elif args.p:
@@ -68,7 +80,7 @@ def main():
             for line in file:
                 value = line.strip()
                 if value:
-                    data = process_data(args.api, args.type, value)
+                    data = process_data(args.api, args.type, value, args.debug)
                     if data:
                         rows.append(data)
     
